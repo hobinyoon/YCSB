@@ -52,7 +52,7 @@ public class RocksDBClient extends DB {
             for(final String cfName : cfNames) {
               final ColumnFamilyDescriptor cfDescriptor = new ColumnFamilyDescriptor(
                   cfName.getBytes(StandardCharsets.UTF_8),
-                  new ColumnFamilyOptions().optimizeLevelStyleCompaction()
+                  new ColumnFamilyOptions()
               );
               cfDescriptors.add(cfDescriptor);
             }
@@ -61,7 +61,6 @@ public class RocksDBClient extends DB {
 
             if(cfDescriptors.isEmpty()) {
               final Options options = new Options()
-                  .optimizeLevelStyleCompaction()
                   .setCreateIfMissing(true)
                   .setCreateMissingColumnFamilies(true)
                   .setIncreaseParallelism(rocksThreads)
@@ -310,7 +309,7 @@ public class RocksDBClient extends DB {
       if(!COLUMN_FAMILIES.containsKey(name)) {
         final ColumnFamilyHandle cfHandle = rocksDB.createColumnFamily(
             new ColumnFamilyDescriptor(name.getBytes(StandardCharsets.UTF_8),
-            new ColumnFamilyOptions().optimizeLevelStyleCompaction())
+            new ColumnFamilyOptions())
         );
         COLUMN_FAMILIES.put(name, cfHandle);
       }
