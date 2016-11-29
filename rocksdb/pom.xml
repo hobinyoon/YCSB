@@ -30,11 +30,24 @@ LICENSE file.
   <packaging>jar</packaging>
 
   <dependencies>
+    <!--
     <dependency>
       <groupId>org.rocksdb</groupId>
       <artifactId>rocksdbjni</artifactId>
       <version>${rocksdb.version}</version>
     </dependency>
+    -->
+
+    <!-- Use a custom-built jar -->
+    <!-- http://stackoverflow.com/questions/364114/can-i-add-jars-to-maven-2-build-classpath-without-installing-them#364188 -->
+    <dependency>
+      <groupId>org.rocksdb</groupId>
+      <artifactId>rocksdbjni</artifactId>
+      <version>${rocksdb.version}</version>
+      <scope>system</scope>
+      <systemPath>${user.home}/work/mutant/rocksdb/java/target/rocksdbjni-4.11.2-linux64.jar</systemPath>
+    </dependency>
+
     <dependency>
       <groupId>com.yahoo.ycsb</groupId>
       <artifactId>core</artifactId>
