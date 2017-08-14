@@ -125,12 +125,13 @@ public class RocksDBClient extends DB {
                   .setInfoLogLevel(InfoLogLevel.DEBUG_LEVEL);
               this.rocksDB = RocksDB.open(options, rocksDbDir.toAbsolutePath().toString());
             } else {
-              final DBOptions options = new DBOptions()
+              final Options options = new Options()
                   .setCreateIfMissing(true)
                   .setCreateMissingColumnFamilies(true)
                   .setIncreaseParallelism(rocksThreads)
                   .setMaxBackgroundCompactions(rocksThreads)
                   .setInfoLogLevel(InfoLogLevel.DEBUG_LEVEL);
+
               final List<ColumnFamilyHandle> cfHandles = new ArrayList<>();
               this.rocksDB = RocksDB.open1(options, rocksDbDir.toAbsolutePath().toString(), cfDescriptors, cfHandles);
               for(int i = 0; i < cfNames.size(); i++) {
