@@ -71,6 +71,13 @@ public abstract class DB
 	 */
 	public void init() throws DBException
 	{
+		//Thread.dumpStack();
+	}
+
+	public void init(String mutantOptions) throws DBException
+	{
+		//System.out.printf("%s mutantOptions: %s\n", Thread.currentThread().getStackTrace()[1], mutantOptions);
+		//Thread.dumpStack();
 	}
 
 	/**

@@ -95,8 +95,12 @@ public class DBWrapper extends DB
    */
   public void init() throws DBException
   {
+    init(null);
+  }
+  public void init(String mutantOptions) throws DBException
+  {
     try (final TraceScope span = _tracer.newScope(SCOPE_STRING_INIT)) {
-      _db.init();
+      _db.init(mutantOptions);
 
       this.reportLatencyForEachError = Boolean.parseBoolean(getProperties().
           getProperty(REPORT_LATENCY_FOR_EACH_ERROR_PROPERTY,

@@ -13,6 +13,12 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.zip.Inflater;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 
 /**
  * RocksDB binding for <a href="http://rocksdb.org/">RocksDB</a>.
@@ -31,10 +37,55 @@ public class RocksDBClient extends DB {
 
   @Override
   public void init() throws DBException {
-    super.init();
+    init(null);
+  }
+
+  @Override
+  public void init(String mutantOptions) throws DBException {
+    super.init(mutantOptions);
     if(rocksDB == null) {
       synchronized (RocksDBClient.class) {
         if(rocksDB == null) {
+          //Thread.dumpStack();
+          //System.out.printf("%s mutantOptions: %s\n", Thread.currentThread().getStackTrace()[1], mutantOptions);
+          System.out.printf("mutantOptions: %s\n", mutantOptions);
+
+          JSONObject mutantOptionsJson = null;
+          {
+            // Base64 decode
+            byte[] s0 = Base64.getDecoder().decode(mutantOptions);
+            //System.out.printf("Based64 decoded: %s\n", new String(s0));
+
+            // Unzip
+            String s1 = null;
+            try {
+              Inflater decompressor = new Inflater();
+              decompressor.setInput(s0);
+              ByteArrayOutputStream bos = new ByteArrayOutputStream(s0.length);
+              byte[] buf = new byte[1024];
+              while (!decompressor.finished()) {
+                int count = decompressor.inflate(buf);
+                bos.write(buf, 0, count);
+              }
+              bos.close();
+              s1 = new String(bos.toByteArray());
+              //System.out.printf("Unzipped: %s\n", s1);
+            } catch (Exception e) {
+              System.out.printf("Exception: %s\n", e);
+              System.exit(1);
+            }
+
+            // Parse json
+            try {
+              JSONParser parser = new JSONParser();
+              mutantOptionsJson = (JSONObject) parser.parse(s1);
+              System.out.printf("Mutant options json obj: %s\n", mutantOptionsJson);
+            } catch (Exception e) {
+              System.out.printf("Exception: %s\n", e);
+              System.exit(1);
+            }
+          }
+
           try {
             RocksDB.loadLibrary();
 

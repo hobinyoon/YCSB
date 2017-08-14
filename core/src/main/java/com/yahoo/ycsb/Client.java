@@ -376,6 +376,7 @@ class ClientThread implements Runnable
   Properties _props;
   long _targetOpsTickNs;
   final Measurements _measurements;
+  final String _mutantOptions;
 
   /**
    * Constructor.
@@ -388,7 +389,7 @@ class ClientThread implements Runnable
    * @param targetperthreadperms target number of operations per thread per ms
    * @param completeLatch The latch tracking the completion of all clients.
    */
-  public ClientThread(DB db, boolean dotransactions, Workload workload, Properties props, int opcount, double targetperthreadperms, CountDownLatch completeLatch)
+  public ClientThread(DB db, boolean dotransactions, Workload workload, Properties props, int opcount, double targetperthreadperms, CountDownLatch completeLatch, String mutantOptions)
   {
     _db=db;
     _dotransactions=dotransactions;
@@ -403,6 +404,7 @@ class ClientThread implements Runnable
     _measurements = Measurements.getMeasurements();
     _spinSleep = Boolean.valueOf(_props.getProperty("spin.sleep", "false"));
     _completeLatch=completeLatch;
+    _mutantOptions = mutantOptions;
   }
 
   public int getOpsDone()
@@ -415,7 +417,8 @@ class ClientThread implements Runnable
   {
     try
     {
-      _db.init();
+      //System.out.printf("%s _mutantOptions: %s\n", Thread.currentThread().getStackTrace()[1], _mutantOptions);
+      _db.init(_mutantOptions);
     }
     catch (DBException e)
     {
@@ -741,6 +744,7 @@ public class Client
     int target=0;
     boolean status=false;
     String label="";
+    String mutantOptions = "";
 
     //parse arguments
     int argindex=0;
@@ -873,6 +877,18 @@ public class Client
         String value=args[argindex].substring(eq+1);
         props.put(name,value);
         //System.out.println("["+name+"]=["+value+"]");
+        argindex++;
+      }
+      else if (args[argindex].compareTo("-m")==0)
+      {
+        argindex++;
+        if (argindex>=args.length)
+        {
+          usageMessage();
+          System.out.println("Missing argument value for -m.");
+          System.exit(0);
+        }
+        mutantOptions = args[argindex];
         argindex++;
       }
       else
@@ -1073,7 +1089,8 @@ public class Client
           ++threadopcount;
         }
 
-        ClientThread t=new ClientThread(db,dotransactions,workload,props,threadopcount, targetperthreadperms, completeLatch);
+        //System.out.printf("%s mutantOptions: %s\n", Thread.currentThread().getStackTrace()[1], mutantOptions);
+        ClientThread t = new ClientThread(db,dotransactions,workload,props,threadopcount, targetperthreadperms, completeLatch, mutantOptions);
 
         clients.add(t);
       }
