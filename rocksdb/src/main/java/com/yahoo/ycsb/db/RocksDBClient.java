@@ -111,6 +111,11 @@ public class RocksDBClient extends DB {
             final int rocksThreads = Runtime.getRuntime().availableProcessors() * 2;
 
             if(cfDescriptors.isEmpty()) {
+              if (true) {
+                System.out.println("Not implemented.");
+                System.exit(1);
+              }
+
               final Options options = new Options()
                   .optimizeLevelStyleCompaction()
                   .setCreateIfMissing(true)
@@ -127,7 +132,7 @@ public class RocksDBClient extends DB {
                   .setMaxBackgroundCompactions(rocksThreads)
                   .setInfoLogLevel(InfoLogLevel.DEBUG_LEVEL);
               final List<ColumnFamilyHandle> cfHandles = new ArrayList<>();
-              this.rocksDB = RocksDB.open(options, rocksDbDir.toAbsolutePath().toString(), cfDescriptors, cfHandles);
+              this.rocksDB = RocksDB.open1(options, rocksDbDir.toAbsolutePath().toString(), cfDescriptors, cfHandles);
               for(int i = 0; i < cfNames.size(); i++) {
                 COLUMN_FAMILIES.put(cfNames.get(i), cfHandles.get(i));
               }
