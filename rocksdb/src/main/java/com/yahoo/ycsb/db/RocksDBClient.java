@@ -48,43 +48,43 @@ public class RocksDBClient extends DB {
         if(rocksDB == null) {
           //Thread.dumpStack();
           //System.out.printf("%s mutantOptions: %s\n", Thread.currentThread().getStackTrace()[1], mutantOptions);
-          System.out.printf("mutantOptions: %s\n", mutantOptions);
+          //System.out.printf("mutantOptions: %s\n", mutantOptions);
 
-          JSONObject mutantOptionsJson = null;
-          {
-            // Base64 decode
-            byte[] s0 = Base64.getDecoder().decode(mutantOptions);
-            //System.out.printf("Based64 decoded: %s\n", new String(s0));
+          //JSONObject mutantOptionsJson = null;
+          //{
+          //  // Base64 decode
+          //  byte[] s0 = Base64.getDecoder().decode(mutantOptions);
+          //  //System.out.printf("Based64 decoded: %s\n", new String(s0));
 
-            // Unzip
-            String s1 = null;
-            try {
-              Inflater decompressor = new Inflater();
-              decompressor.setInput(s0);
-              ByteArrayOutputStream bos = new ByteArrayOutputStream(s0.length);
-              byte[] buf = new byte[1024];
-              while (!decompressor.finished()) {
-                int count = decompressor.inflate(buf);
-                bos.write(buf, 0, count);
-              }
-              bos.close();
-              s1 = new String(bos.toByteArray());
-              //System.out.printf("Unzipped: %s\n", s1);
-            } catch (Exception e) {
-              System.out.printf("Exception: %s\n", e);
-              System.exit(1);
-            }
+          //  // Unzip
+          //  String s1 = null;
+          //  try {
+          //    Inflater decompressor = new Inflater();
+          //    decompressor.setInput(s0);
+          //    ByteArrayOutputStream bos = new ByteArrayOutputStream(s0.length);
+          //    byte[] buf = new byte[1024];
+          //    while (!decompressor.finished()) {
+          //      int count = decompressor.inflate(buf);
+          //      bos.write(buf, 0, count);
+          //    }
+          //    bos.close();
+          //    s1 = new String(bos.toByteArray());
+          //    //System.out.printf("Unzipped: %s\n", s1);
+          //  } catch (Exception e) {
+          //    System.out.printf("Exception: %s\n", e);
+          //    System.exit(1);
+          //  }
 
-            // Parse json
-            try {
-              JSONParser parser = new JSONParser();
-              mutantOptionsJson = (JSONObject) parser.parse(s1);
-              System.out.printf("Mutant options json obj: %s\n", mutantOptionsJson);
-            } catch (Exception e) {
-              System.out.printf("Exception: %s\n", e);
-              System.exit(1);
-            }
-          }
+          //  // Parse json
+          //  try {
+          //    JSONParser parser = new JSONParser();
+          //    mutantOptionsJson = (JSONObject) parser.parse(s1);
+          //    System.out.printf("Mutant options json obj: %s\n", mutantOptionsJson);
+          //  } catch (Exception e) {
+          //    System.out.printf("Exception: %s\n", e);
+          //    System.exit(1);
+          //  }
+          //}
 
           try {
             RocksDB.loadLibrary();
@@ -111,26 +111,31 @@ public class RocksDBClient extends DB {
             final int rocksThreads = Runtime.getRuntime().availableProcessors() * 2;
 
             if(cfDescriptors.isEmpty()) {
-              if (true) {
-                System.out.println("Not implemented.");
-                System.exit(1);
-              }
-
               final Options options = new Options()
                   .optimizeLevelStyleCompaction()
                   .setCreateIfMissing(true)
                   .setCreateMissingColumnFamilies(true)
                   .setIncreaseParallelism(rocksThreads)
                   .setMaxBackgroundCompactions(rocksThreads)
-                  .setInfoLogLevel(InfoLogLevel.DEBUG_LEVEL);
+                  .setInfoLogLevel(InfoLogLevel.DEBUG_LEVEL)
+                  .setMutantOptionsEncoded(mutantOptions)
+                  ;
               this.rocksDB = RocksDB.open(options, rocksDbDir.toAbsolutePath().toString());
             } else {
+              //Boolean cache_filter_index_at_all_levels = mutantOptionsJson.getBoolean("cache_filter_index_at_all_levels");
+              //Boolean migrate_sstables = mutantOptionsJson.getBoolean("migrate_sstables");
+              //Boolean monitor_temp = mutantOptionsJson.getBoolean("monitor_temp");
+              //Double sst_ott = mutantOptionsJson.getDouble("sst_ott");
+
+              // Pass encoded mutant options. Individual option passing takes too much modification.
               final Options options = new Options()
                   .setCreateIfMissing(true)
                   .setCreateMissingColumnFamilies(true)
                   .setIncreaseParallelism(rocksThreads)
                   .setMaxBackgroundCompactions(rocksThreads)
-                  .setInfoLogLevel(InfoLogLevel.DEBUG_LEVEL);
+                  .setInfoLogLevel(InfoLogLevel.DEBUG_LEVEL)
+                  .setMutantOptionsEncoded(mutantOptions)
+                  ;
 
               final List<ColumnFamilyHandle> cfHandles = new ArrayList<>();
               this.rocksDB = RocksDB.open1(options, rocksDbDir.toAbsolutePath().toString(), cfDescriptors, cfHandles);
