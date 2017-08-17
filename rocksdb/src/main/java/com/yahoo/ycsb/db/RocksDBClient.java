@@ -110,7 +110,7 @@ public class RocksDBClient extends DB {
 
             final int rocksThreads = Runtime.getRuntime().availableProcessors() * 2;
 
-            if(cfDescriptors.isEmpty()) {
+            if (cfDescriptors.isEmpty()) {
               final Options options = new Options()
                   .optimizeLevelStyleCompaction()
                   .setCreateIfMissing(true)
