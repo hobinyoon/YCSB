@@ -28,7 +28,10 @@ public class SkewedLatestGenerator extends NumberGenerator
 	public SkewedLatestGenerator(CounterGenerator basis)
 	{
 		_basis=basis;
-		_zipfian=new ZipfianGenerator(_basis.lastValue());
+		//_zipfian=new ZipfianGenerator(_basis.lastValue());
+		//_zipfian=new ZipfianGenerator(0, _basis.lastValue()-1, 0.999);
+		//_zipfian=new ZipfianGenerator(0, _basis.lastValue()-1, 1.1);
+		_zipfian=new ZipfianGenerator(0, _basis.lastValue()-1, 0.99);
 		nextValue();
 	}
 
